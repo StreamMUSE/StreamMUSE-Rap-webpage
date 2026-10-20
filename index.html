@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StreamMUSE-Rap</title>
+<meta name="description" content="Real-time AI rap: a lyric model writes every bar and a cloned voice raps it on the beat, live.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg: #f3f4f6; --surface: #ffffff; --ink: #15171c; --muted: #5d6370; --line: #d9dce2;
+  --accent: #2f45c4; --accent-soft: #e6e9fb;
+  --display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111318; --surface: #1a1d24; --ink: #e8eaef; --muted: #9aa1ae; --line: #2b303a;
+    --accent: #8b99ff; --accent-soft: #232a4a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111318; --surface: #1a1d24; --ink: #e8eaef; --muted: #9aa1ae; --line: #2b303a;
+  --accent: #8b99ff; --accent-soft: #232a4a; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 var(--body); }
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: 20px; padding-block: 48px 72px; display: grid; gap: 56px; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.4rem, 6vw, 4.2rem); font-weight: 850; font-stretch: 72%; letter-spacing: -0.01em; line-height: 1; }
+h2 { font-size: 1.55rem; font-weight: 800; font-stretch: 80%; }
+h3 { font-size: 1.3rem; font-weight: 800; font-stretch: 80%; }
+p { margin: 0; max-width: 68ch; }
+.muted { color: var(--muted); }
+.eyebrow { font: 500 0.72rem/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+header { display: grid; gap: 18px; }
+header .lede { font-size: 1.12rem; }
+.listen { display: grid; gap: 10px; padding: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; max-width: 720px; }
+.listen audio { width: 100%; }
+section { display: grid; gap: 18px; }
+.pages { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 760px) { .pages { grid-template-columns: minmax(0, 1fr); } }
+.page { display: grid; gap: 12px; align-content: start; padding: 22px; background: var(--surface); border: 1px solid var(--line);
+  border-radius: 12px; color: inherit; text-decoration: none; transition: border-color 120ms; }
+.page:hover { border-color: var(--accent); }
+.page:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.page .go { color: var(--accent); font-weight: 600; }
+.page ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none; counter-reset: step; }
+@media (max-width: 960px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .steps { grid-template-columns: minmax(0, 1fr); } }
+.steps li { display: grid; gap: 6px; align-content: start; padding: 16px; border-top: 3px solid var(--accent); background: var(--surface); border-radius: 0 0 10px 10px; }
+.steps b { font: 800 1.08rem/1.2 var(--display); font-stretch: 85%; }
+.steps li::before { counter-increment: step; content: "0" counter(step); font: 500 0.75rem/1 var(--mono); color: var(--muted); }
+.timeline { display: grid; gap: 0; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); overflow: hidden; }
+.timeline > div { display: grid; grid-template-columns: 76px 150px minmax(0, 1fr); gap: 4px 18px; padding: 14px 18px; border-bottom: 1px solid var(--line); align-items: baseline; }
+.timeline > div:last-child { border-bottom: 0; }
+@media (max-width: 640px) { .timeline > div { grid-template-columns: 64px minmax(0, 1fr); } .timeline .what { grid-column: 1 / -1; } }
+.vid { font: 800 1.35rem/1 var(--display); font-stretch: 75%; color: var(--accent); }
+.vname { font-weight: 600; }
+.vname small { display: block; font: 400 0.78rem/1.3 var(--mono); color: var(--muted); }
+footer { font-size: 0.85rem; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <div class="eyebrow">StreamMUSE-Rap</div>
+    <h1>Real-time AI rap, one bar at a time</h1>
+    <p class="lede">A language model writes each bar's line while the beat plays, and a cloned voice raps it in time. The performer can change the topic or the flow mid-song, and the rap follows within a few bars.</p>
+    <div class="listen">
+      <div class="eyebrow">Listen · v1.1, real time · topic "space", straight flow · 16 bars</div>
+      <audio controls preload="none" src="versions/audio/v1.1-realtime-S01.mp3"></audio>
+    </div>
+  </header>
+
+  <section aria-labelledby="pages-h">
+    <h2 id="pages-h">Listening pages</h2>
+    <div class="pages">
+      <a class="page" href="versions/">
+        <div class="eyebrow">150 recordings</div>
+        <h3>Versions v0.0 to v1.1</h3>
+        <p class="muted">Five versions of the system on the same 15 prompts (five topics × three flow templates), each recorded twice:</p>
+        <ul class="muted">
+          <li><b>Real time</b>: the full system end to end, as a listener hears it.</li>
+          <li><b>Fake real time</b>: the same system with its deadlines lifted, to hear what it would produce with unlimited time.</li>
+        </ul>
+        <span class="go">Open the version comparison →</span>
+      </a>
+      <a class="page" href="model-upgrade/">
+        <div class="eyebrow">Lyric models · voices · live sessions</div>
+        <h3>Model upgrade</h3>
+        <p class="muted">How v1.1 was chosen:</p>
+        <ul class="muted">
+          <li>Five Qwen lyric models writing the same 240 bars.</li>
+          <li>Six open TTS models speaking the same lines in the same cloned voice, warped onto the beat.</li>
+          <li>Sixteen full live sessions with the most promising combinations, at 90 and 120 BPM.</li>
+        </ul>
+        <span class="go">Open the model upgrade →</span>
+      </a>
+    </div>
+  </section>
+
+  <section aria-labelledby="how-h">
+    <h2 id="how-h">How it works</h2>
+    <ol class="steps">
+      <li><b>Write</b><span class="muted">Qwen drafts 32 candidate lines per bar. Each must match the flow template's syllables and stresses and keep the couplet's rhyme.</span></li>
+      <li><b>Speak</b><span class="muted">MOSS-TTS speaks the chosen line in a cloned voice, continuing from the previous bar's audio so the voice stays consistent.</span></li>
+      <li><b>Lock to the beat</b><span class="muted">MMS forced alignment finds each syllable, and Rubber Band R3 warps it onto its beat position.</span></li>
+      <li><b>Play</b><span class="muted">The client plays each bar over the drums on schedule. If the server's audio is late, it plays the same line in eSpeak instead.</span></li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="ver-h">
+    <h2 id="ver-h">Versions</h2>
+    <div class="timeline">
+      <div><span class="vid">v0.0</span><span class="vname">In-process MOSS<small>Aug 2026</small></span><span class="what muted">The first system: the server writes and speaks two bars per request, with MOSS running inside the render server.</span></div>
+      <div><span class="vid">v0.1</span><span class="vname">SGLang-Omni MOSS<small>Oct 2026</small></span><span class="what muted">MOSS moves to an SGLang-Omni server.</span></div>
+      <div><span class="vid">v0.2</span><span class="vname">Optimized SGLang-Omni<small>Oct 2026</small></span><span class="what muted">Both bars are written concurrently, MOSS gets a latency patch, and the client does the beat warping.</span></div>
+      <div><span class="vid">v1.0</span><span class="vname">Lyric stream<small>Oct 2026</small></span><span class="what muted">Lines are written three bars ahead and streamed to the client. Each bar is synthesized on its own, continuing the previous bar's voice.</span></div>
+      <div><span class="vid">v1.1</span><span class="vname">Model upgrade<small>Oct 2026</small></span><span class="what muted">Qwen3.5-9B writes the lyrics and MOSS-TTS-Local v1.5 does the voice, both on one GPU.</span></div>
+    </div>
+  </section>
+
+  <footer class="muted">All recordings were made with one NVIDIA H200 server and an Apple Silicon Mac client. Audio is loudness-normalized MP3.</footer>
+</main>
+</body>
+</html>
